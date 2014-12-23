@@ -46,7 +46,7 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
 
     exec { "restorecon-${chroot_basedir}":
       command     => "restorecon -R ${chroot_basedir}",
-      path        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
+      path        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
       refreshonly => true,
     }
   }

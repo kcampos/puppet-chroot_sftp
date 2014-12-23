@@ -27,7 +27,7 @@ describe 'chroot_sftp' do
 
     it { should contain_exec("restorecon-/sftp").with({
       'command'     => "restorecon -R /sftp",
-      'path'        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
+      'path'        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
       'refreshonly' => true
       })
     }
