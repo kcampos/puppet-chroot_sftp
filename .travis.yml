@@ -2,8 +2,6 @@
 branches:
   only:
     - master
-cache: 
-  - bundler
 language: ruby
 script: 'bundle exec rake spec'
 rvm:
