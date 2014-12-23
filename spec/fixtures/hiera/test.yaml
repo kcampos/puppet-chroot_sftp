@@ -5,11 +5,16 @@ sftp_user_basedir: '/incoming'
 sftp_chroot_basedir: '/sftp'
 sftp_chroot_dir_mounted: 'true'
 sftp_chroot_dir_device: '/dev/vdb'
+sftp_global_user_directories:
+  - 'drop'
+  - 'pickup'
 
 sftp_users:
   user_pass:
     uid: '200'
     password: 'user1_pass'
+    directories:
+      - 'tmp'
   user_ssh:
     uid: '201'
     pub_ssh_key: 'AHSBDGIAUYSGDI'

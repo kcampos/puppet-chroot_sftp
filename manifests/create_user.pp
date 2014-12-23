@@ -9,8 +9,15 @@ define chroot_sftp::create_user($username = $name) {
   $password         = $sftp_users[$username]['password']
   $pub_ssh_key      = $sftp_users[$username]['pub_ssh_key']
   $pub_ssh_key_type = $sftp_users[$username]['pub_ssh_key_type']
+  $directories      = $sftp_users[$username]['directories']
 
   validate_string($uid)
+
+  $user_directories = $directories ? {
+    undef   => $chroot_sftp::params::global_user_directories,
+    default => union($directories, $chroot_sftp::params::global_user_directories)
+  }
+  validate_array($user_directories)
 
   if(($password == undef) and ($pub_ssh_key == undef)) {
     fail("Must pass either password or pub_ssh_key")
@@ -36,4 +43,13 @@ define chroot_sftp::create_user($username = $name) {
       require => User[$username],
     }
   }
+
+  file { "${chroot_sftp::params::chroot_basedir}/${username}": 
+    ensure => directory, 
+    mode   => 0755,
+    owner  => 'root',
+    group  => 'root' 
+  }
+
+  chroot_sftp::create_user_directories { $username: directories => $user_directories }
 }

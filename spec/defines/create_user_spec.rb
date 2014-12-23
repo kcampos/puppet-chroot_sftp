@@ -4,6 +4,8 @@ describe 'chroot_sftp::create_user' do
   let(:password) { "user1_pass" } # hiera fixture
   let(:pub_ssh_key) { "AHSBDGIAUYSGDI" } # hiera fixture
   let(:pub_ssh_key_type) { 'ssh-rsa' } # hiera fixture
+  let(:username) { "user_pass" } # hiera fixture
+  let(:user_directories) { ['tmp','drop','pickup'] } # hiera fixture
   let(:title) { username }
 
   context "with password" do
@@ -43,4 +45,14 @@ describe 'chroot_sftp::create_user' do
       }).that_requires("User[#{username}]")
     }
   end
+
+  it { should contain_file("/sftp/#{username}").with({
+      'ensure' => 'directory',
+      'mode'   => '0755',
+      'owner'  => 'root',
+      'group'  => 'root'
+    })
+  }
+
+  it { should contain_chroot_sftp__create_user_directories(username).with_directories(user_directories) }
 end

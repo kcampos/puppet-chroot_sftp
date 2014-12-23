@@ -1,1 +1,0 @@
-#class {'chroot_sftp': }
