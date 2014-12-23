@@ -10,6 +10,6 @@ group :development do
 end
 
 group :ci do
-  puppetversion = ENV.key?('PUPPET_VERSION') ? "= #{ENV['PUPPET_VERSION']}" : '>= 3.3'
+  puppetversion = ENV.key?('PUPPET_VERSION') ? "#{ENV['PUPPET_VERSION']}" : '>= 3.3'
   gem "puppet", puppetversion
 end
