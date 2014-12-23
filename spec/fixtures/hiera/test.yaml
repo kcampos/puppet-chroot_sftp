@@ -1,0 +1,16 @@
+---
+sftp_group: 'sftpusers'
+sftp_gid: '60'
+sftp_user_basedir: '/incoming'
+sftp_chroot_basedir: '/sftp'
+sftp_chroot_dir_mounted: 'true'
+sftp_chroot_dir_device: '/dev/vdb'
+
+sftp_users:
+  user_pass:
+    uid: '200'
+    password: 'user1_pass'
+  user_ssh:
+    uid: '201'
+    pub_ssh_key: 'AHSBDGIAUYSGDI'
+    pub_ssh_key_type: 'ssh-rsa'
