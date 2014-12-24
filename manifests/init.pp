@@ -44,6 +44,15 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
       notify  => Exec["restorecon-${chroot_basedir}"]
     }
 
+    $parent_dir = dirname($chroot_basedir)
+    $dir        = basename($chroot_basedir)
+    exec { "set_chroot_context":
+      command => "chcon -R --type=chroot_user_t ${chroot_basedir}",
+      path    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
+      unless  => "ls -Z ${parent_dir} | grep ${dir} | awk '{ print \$4 }' | cut -d : -f 3 | grep chroot_user_t",
+      notify  => Exec["restorecon-${chroot_basedir}"]
+    }
+
     exec { "restorecon-${chroot_basedir}":
       command     => "restorecon -R ${chroot_basedir}",
       path        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',

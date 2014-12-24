@@ -25,6 +25,13 @@ describe 'chroot_sftp' do
       }).that_notifies("Exec[restorecon-/sftp]")
     }
 
+    it { should contain_exec("set_chroot_context").with({
+      'command' => 'chcon -R --type=chroot_user_t /sftp',
+      'path'    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
+      'unless'  => "ls -Z / | grep sftp | awk '{ print \$4 }' | cut -d : -f 3 | grep chroot_user_t"
+      }).that_notifies("Exec[restorecon-/sftp]")
+    }
+
     it { should contain_exec("restorecon-/sftp").with({
       'command'     => "restorecon -R /sftp",
       'path'        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
