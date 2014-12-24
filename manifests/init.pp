@@ -32,6 +32,7 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
         'PasswordAuthentication' => $allow_password_auth,
         'AllowTcpForwarding'     => 'no',
         'X11Forwarding'          => 'no',
+        'AuthorizedKeysFile'     => "${chroot_basedir}/%u/.ssh/authorized_keys"
       }
     }
   }

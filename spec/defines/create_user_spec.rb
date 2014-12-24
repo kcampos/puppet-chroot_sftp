@@ -41,8 +41,9 @@ describe 'chroot_sftp::create_user' do
         'ensure'  => 'present',
         'key'     => pub_ssh_key,
         'type'    => pub_ssh_key_type,
-        'user'    => username
-      }).that_requires("User[#{username}]")
+        'user'    => username,
+        'target'  => "/sftp/#{username}/.ssh/authorized_keys",
+      }).that_requires(["User[#{username}]","File[/sftp/#{username}]"])
     }
   end
 
