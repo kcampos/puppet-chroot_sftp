@@ -1,7 +1,13 @@
 class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
   
   group { $group_name: gid => $gid }
-  file { [$user_basedir,$chroot_basedir]: ensure => directory }
+  file { [$user_basedir,$chroot_basedir]: 
+    ensure  => directory,
+    seltype => $selinux_enforced ? {
+      true    => 'chroot_user_t',
+      default => undef
+    }
+  }
 
   if $chroot_dir_mounted {
     validate_string($chroot_dir_device)
