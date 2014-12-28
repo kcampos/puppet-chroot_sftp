@@ -33,10 +33,14 @@ define chroot_sftp::create_user($username = $name) {
   }
 
   file { "${chroot_sftp::params::chroot_basedir}/${username}": 
-    ensure => directory, 
-    mode   => 0755,
-    owner  => 'root',
-    group  => 'root' 
+    ensure  => directory, 
+    mode    => 0755,
+    owner   => 'root',
+    group   => 'root',
+    seltype => $selinux_enforced ? {
+      true    => 'chroot_user_t',
+      default => undef
+    }
   }
 
   if $pub_ssh_key {

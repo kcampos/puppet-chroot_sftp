@@ -8,6 +8,36 @@ describe 'chroot_sftp::create_user' do
   let(:user_directories) { ['tmp','drop','pickup'] } # hiera fixture
   let(:title) { username }
 
+  it { should contain_chroot_sftp__create_user_directories(username).with_directories(user_directories) }
+
+  context "with selinux enforced" do
+    let(:facts) { {:selinux_enforced => true} }
+    let(:selinux_type) { 'chroot_user_t' }
+
+    it { should contain_file("/sftp/#{username}").with({
+        'ensure'  => 'directory',
+        'mode'    => '0755',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => selinux_type
+      })
+    }
+  end
+
+  context "with selinux disabled" do
+    let(:facts) { {:selinux_enforced => false} }
+    let(:selinux_type) { nil }
+
+    it { should contain_file("/sftp/#{username}").with({
+        'ensure'  => 'directory',
+        'mode'    => '0755',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => selinux_type
+      })
+    }
+  end
+
   context "with password" do
     let(:username) { "user_pass" } # hiera fixture
 
@@ -46,14 +76,4 @@ describe 'chroot_sftp::create_user' do
       }).that_requires(["User[#{username}]","File[/sftp/#{username}]"])
     }
   end
-
-  it { should contain_file("/sftp/#{username}").with({
-      'ensure' => 'directory',
-      'mode'   => '0755',
-      'owner'  => 'root',
-      'group'  => 'root'
-    })
-  }
-
-  it { should contain_chroot_sftp__create_user_directories(username).with_directories(user_directories) }
 end
