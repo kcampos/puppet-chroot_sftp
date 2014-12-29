@@ -10,6 +10,30 @@ describe 'chroot_sftp::create_user' do
 
   it { should contain_chroot_sftp__create_user_directories(username).with_directories(user_directories) }
 
+  context "with selinux enforced" do
+    let(:facts) { {:selinux_enforced => 'true'} }
+
+    it { should contain_file("/sftp/#{username}").with({
+      'ensure'  => 'directory',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'seltype' => 'user_home_dir_t'
+      })
+    }
+  end
+
+  context "with selinux disabled" do
+    let(:facts) { {:selinux_enforced => 'false'} }
+
+    it { should contain_file("/sftp/#{username}").with({
+      'ensure'  => 'directory',
+      'owner'   => 'root',
+      'group'   => 'root',
+      'seltype' => nil
+      })
+    }
+  end
+
   context "with password" do
     let(:username) { "user_pass" } # hiera fixture
 

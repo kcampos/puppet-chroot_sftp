@@ -23,7 +23,15 @@ define chroot_sftp::create_user($username = $name) {
     fail("Must pass either password or pub_ssh_key")
   }
   
-  file { "${chroot_sftp::params::chroot_basedir}/${username}": ensure => directory }
+  file { "${chroot_sftp::params::chroot_basedir}/${username}": 
+    ensure => directory,
+    owner  => 'root',
+    group  => 'root',
+    seltype => $selinux_enforced ? {
+      'true'  => 'user_home_dir_t',
+      default => undef
+    }
+  }
   
   user { $username:
     home     => "${chroot_sftp::params::chroot_basedir}/${username}",
