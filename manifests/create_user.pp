@@ -23,27 +23,16 @@ define chroot_sftp::create_user($username = $name) {
     fail("Must pass either password or pub_ssh_key")
   }
   
+  file { "${chroot_sftp::params::chroot_basedir}/${username}": ensure => directory }
+  
   user { $username:
-    home     => $chroot_sftp::params::chroot_ssh_auth ? {
-      false  => "${chroot_sftp::params::user_basedir}/${username}",
-      true   => $chroot_sftp::params::user_basedir
-    },
+    home     => "${chroot_sftp::params::chroot_basedir}/${username}",
     ensure   => present,
     shell    => '/sbin/nologin',
     uid      => $uid,
     gid      => $chroot_sftp::params::gid,
-    password => $password
-  }
-
-  file { "${chroot_sftp::params::chroot_basedir}/${username}": 
-    ensure  => directory, 
-    mode    => 0755,
-    owner   => 'root',
-    group   => 'root',
-    seltype => $selinux_enforced ? {
-      'true'  => 'chroot_user_t',
-      default => undef
-    }
+    password => $password,
+    require  => File["${chroot_sftp::params::chroot_basedir}/${username}"]
   }
 
   if $pub_ssh_key {
@@ -54,11 +43,7 @@ define chroot_sftp::create_user($username = $name) {
       key     => $pub_ssh_key,
       type    => $pub_ssh_key_type,
       user    => $username,
-      target  => $chroot_sftp::params::chroot_ssh_auth ? {
-        true  => "${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys",
-        false => undef
-      },
-      require => [User[$username],File["${chroot_sftp::params::chroot_basedir}/${username}"]],
+      require => User[$username],
     }
   }
 

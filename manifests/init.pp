@@ -2,11 +2,14 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
   
   group { $group_name: gid => $gid }
 
-  file { $user_basedir: ensure => directory }
   file { $chroot_basedir: 
-    ensure  => directory,
+    ensure => directory,
+    seluser => $selinux_enforced ? {
+      'true'  => 'system_u',
+      default => undef
+    },
     seltype => $selinux_enforced ? {
-      'true'  => 'chroot_user_t',
+      'true'  => 'home_root_t',
       default => undef
     }
   }
@@ -52,22 +55,6 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
       command => 'setsebool -P ssh_chroot_rw_homedirs on',
       path    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
       unless  => "getsebool ssh_chroot_rw_homedirs | awk '{ print \$3 }' | grep on",
-      notify  => Exec["restorecon-${chroot_basedir}"]
-    }
-
-    $parent_dir = dirname($chroot_basedir)
-    $dir        = basename($chroot_basedir)
-    exec { "set_chroot_context":
-      command => "chcon -R --type=chroot_user_t ${chroot_basedir}",
-      path    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
-      unless  => "ls -Z ${parent_dir} | grep ${dir} | awk '{ print \$4 }' | cut -d : -f 3 | grep chroot_user_t",
-      notify  => Exec["restorecon-${chroot_basedir}"]
-    }
-
-    exec { "restorecon-${chroot_basedir}":
-      command     => "restorecon -R ${chroot_basedir}",
-      path        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
-      refreshonly => true,
     }
   }
 }

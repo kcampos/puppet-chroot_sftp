@@ -1,7 +1,6 @@
 class chroot_sftp::params {
   $group_name              = hiera('sftp_group', 'sftpusers')
   $gid                     = hiera('sftp_gid', '60')
-  $user_basedir            = hiera('sftp_user_basedir', '/incoming')
   $chroot_basedir          = hiera('sftp_chroot_basedir', '/sftp')
   $allow_password_auth     = hiera('sftp_allow_password_auth', 'no')
   $chroot_dir_mounted      = str2bool(hiera('sftp_chroot_dir_mounted', false))

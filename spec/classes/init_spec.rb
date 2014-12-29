@@ -4,7 +4,6 @@ describe 'chroot_sftp' do
   let(:params) { {:configure_ssh => false} }
 
   it { should contain_group('sftpusers').with_gid('60') }
-  it { should contain_file('/incoming').with_ensure('directory') }
   it { should contain_mount('/sftp').with({
     'ensure'  => 'mounted',
     'atboot'  => true,
@@ -19,7 +18,8 @@ describe 'chroot_sftp' do
 
     it { should contain_file('/sftp').with({
       'ensure'  => 'directory',
-      'seltype' => 'chroot_user_t'
+      'seluser' => 'system_u',
+      'seltype' => 'home_root_t'
       }) 
     }
 
@@ -27,20 +27,6 @@ describe 'chroot_sftp' do
       'command' => 'setsebool -P ssh_chroot_rw_homedirs on',
       'path'    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
       'unless'  => "getsebool ssh_chroot_rw_homedirs | awk '{ print \$3 }' | grep on"
-      }).that_notifies("Exec[restorecon-/sftp]")
-    }
-
-    it { should contain_exec("set_chroot_context").with({
-      'command' => 'chcon -R --type=chroot_user_t /sftp',
-      'path'    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
-      'unless'  => "ls -Z / | grep sftp | awk '{ print \$4 }' | cut -d : -f 3 | grep chroot_user_t"
-      }).that_notifies("Exec[restorecon-/sftp]")
-    }
-
-    it { should contain_exec("restorecon-/sftp").with({
-      'command'     => "restorecon -R /sftp",
-      'path'        => '/usr/bin:/usr/sbin:/bin:/usr/local/bin:/sbin',
-      'refreshonly' => true
       })
     }
   end
@@ -50,6 +36,7 @@ describe 'chroot_sftp' do
 
     it { should contain_file('/sftp').with({
       'ensure'  => 'directory',
+      'seluser' => nil,
       'seltype' => nil
       }) 
     }

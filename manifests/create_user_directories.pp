@@ -11,10 +11,6 @@ define chroot_sftp::create_user_directories(
     owner   => $username,
     group   => $chroot_sftp::params::group_name,
     mode    => "0755",
-    seltype => $selinux_enforced ? {
-      'true'  => 'chroot_user_t',
-      default => undef
-    },
     require => File[$basedir]
   }
 }

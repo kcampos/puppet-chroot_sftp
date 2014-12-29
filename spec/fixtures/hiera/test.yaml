@@ -1,7 +1,6 @@
 ---
 sftp_group: 'sftpusers'
 sftp_gid: '60'
-sftp_user_basedir: '/incoming'
 sftp_chroot_basedir: '/sftp'
 sftp_chroot_dir_mounted: 'true'
 sftp_chroot_dir_device: '/dev/vdb'
