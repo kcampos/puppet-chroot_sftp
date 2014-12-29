@@ -8,6 +8,12 @@ class chroot_sftp::params {
   $chroot_dir_device       = hiera('sftp_chroot_dir_device', undef)
   $global_user_directories = hiera('sftp_global_user_directories', [])
 
+  if(versioncmp($operatingsystemmajrelease, 7) >= 0) {
+    $chroot_ssh_auth = true
+  } else {
+    $chroot_ssh_auth = false
+  }
+
   # sftp_users:
   #   username:
   #     uid: ''

@@ -7,7 +7,7 @@ describe 'chroot_sftp::create_user_directories' do
   let(:params) { {:directories => dirs}}
 
   context "with selinux enforced" do
-    let(:facts) { {:selinux_enforced => true} }
+    let(:facts) { {:selinux_enforced => 'true'} }
     let(:selinux_type) { 'chroot_user_t' }
 
     it { should contain_file("/sftp/#{username}/drop").with({
@@ -30,7 +30,7 @@ describe 'chroot_sftp::create_user_directories' do
   end
 
   context "with selinux disabled" do
-    let(:facts) { {:selinux_enforced => false} }
+    let(:facts) { {:selinux_enforced => 'false'} }
     let(:selinux_type) { nil }
 
     it { should contain_file("/sftp/#{username}/drop").with({

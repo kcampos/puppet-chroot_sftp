@@ -15,7 +15,7 @@ describe 'chroot_sftp' do
   }
 
   context "with selinux enforced" do
-    let(:facts) { {:selinux_enforced => true} }
+    let(:facts) { {:selinux_enforced => 'true'} }
 
     it { should contain_file('/sftp').with({
       'ensure'  => 'directory',
@@ -46,7 +46,7 @@ describe 'chroot_sftp' do
   end
 
   context "with selinux disabled" do
-    let(:facts) { {:selinux_enforced => false} }
+    let(:facts) { {:selinux_enforced => 'false'} }
 
     it { should contain_file('/sftp').with({
       'ensure'  => 'directory',

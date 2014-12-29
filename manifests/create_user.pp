@@ -24,7 +24,10 @@ define chroot_sftp::create_user($username = $name) {
   }
   
   user { $username:
-    home     => $chroot_sftp::params::user_basedir,
+    home     => $chroot_sftp::params::chroot_ssh_auth ? {
+      false  => "${chroot_sftp::params::user_basedir}/${username}",
+      true   => $chroot_sftp::params::user_basedir
+    },
     ensure   => present,
     shell    => '/sbin/nologin',
     uid      => $uid,
@@ -38,7 +41,7 @@ define chroot_sftp::create_user($username = $name) {
     owner   => 'root',
     group   => 'root',
     seltype => $selinux_enforced ? {
-      true    => 'chroot_user_t',
+      'true'  => 'chroot_user_t',
       default => undef
     }
   }
@@ -51,7 +54,10 @@ define chroot_sftp::create_user($username = $name) {
       key     => $pub_ssh_key,
       type    => $pub_ssh_key_type,
       user    => $username,
-      target  => "${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys",
+      target  => $chroot_sftp::params::chroot_ssh_auth ? {
+        true  => "${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys",
+        false => undef
+      },
       require => [User[$username],File["${chroot_sftp::params::chroot_basedir}/${username}"]],
     }
   }

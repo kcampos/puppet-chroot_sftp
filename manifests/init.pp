@@ -1,10 +1,12 @@
 class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
   
   group { $group_name: gid => $gid }
-  file { [$user_basedir,$chroot_basedir]: 
+
+  file { $user_basedir: ensure => directory }
+  file { $chroot_basedir: 
     ensure  => directory,
     seltype => $selinux_enforced ? {
-      true    => 'chroot_user_t',
+      'true'  => 'chroot_user_t',
       default => undef
     }
   }
@@ -36,7 +38,7 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
 
     if(versioncmp($operatingsystemmajrelease, 6) == -1) {
       fail("Only RHEL 6+")
-    } elsif(versioncmp($operatingsystemmajrelease, 7) >= 0) {
+    } elsif $chroot_ssh_auth {
       $ssh_options = merge($default_ssh_options, {'AuthorizedKeysFile' => "${chroot_basedir}/%u/.ssh/authorized_keys"})
     } else {
       $ssh_options = $default_ssh_options
@@ -45,7 +47,7 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
     ssh::server::match_block { $group_name: type => 'Group', options => $ssh_options }
   }
 
-  if $selinux_enforced {
+  if str2bool($selinux_enforced) {
     exec { "enable_chroot_rw_access":
       command => 'setsebool -P ssh_chroot_rw_homedirs on',
       path    => '/usr/bin:/usr/sbin:/bin:/usr/local/bin',
