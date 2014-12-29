@@ -26,21 +26,23 @@ class chroot_sftp($configure_ssh = false) inherits chroot_sftp::params {
   chroot_sftp::create_user { $sftp_usernames: }
 
   if $configure_ssh {
-    if(versioncmp($operatingsystemmajrelease, 6) == -1) {
-      fail("Only RHEL 6+")
+    $default_ssh_options = {
+      'ChrootDirectory'        => "${chroot_basedir}/%u",
+      'ForceCommand'           => 'internal-sftp',
+      'PasswordAuthentication' => $allow_password_auth,
+      'AllowTcpForwarding'     => 'no',
+      'X11Forwarding'          => 'no'
     }
 
-    ssh::server::match_block { $group_name:
-      type    => 'Group',
-      options => {
-        'ChrootDirectory'        => "${chroot_basedir}/%u",
-        'ForceCommand'           => 'internal-sftp',
-        'PasswordAuthentication' => $allow_password_auth,
-        'AllowTcpForwarding'     => 'no',
-        'X11Forwarding'          => 'no',
-        'AuthorizedKeysFile'     => "${chroot_basedir}/%u/.ssh/authorized_keys"
-      }
+    if(versioncmp($operatingsystemmajrelease, 6) == -1) {
+      fail("Only RHEL 6+")
+    } elsif(versioncmp($operatingsystemmajrelease, 7) >= 0) {
+      $ssh_options = merge($default_ssh_options, {'AuthorizedKeysFile' => "${chroot_basedir}/%u/.ssh/authorized_keys"})
+    } else {
+      $ssh_options = $default_ssh_options
     }
+
+    ssh::server::match_block { $group_name: type => 'Group', options => $ssh_options }
   }
 
   if $selinux_enforced {
