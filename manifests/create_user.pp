@@ -75,7 +75,7 @@ define chroot_sftp::create_user($username = $name) {
       key     => $pub_ssh_key,
       type    => $pub_ssh_key_type,
       user    => $username,
-      require => User[$username],
+      require => File["${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys"],
     }
   }
 
