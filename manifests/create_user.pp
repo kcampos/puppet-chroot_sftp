@@ -24,9 +24,9 @@ define chroot_sftp::create_user($username = $name) {
   }
   
   file { "${chroot_sftp::params::chroot_basedir}/${username}": 
-    ensure => directory,
-    owner  => 'root',
-    group  => 'root',
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'root',
     seltype => $selinux_enforced ? {
       'true'  => 'user_home_dir_t',
       default => undef
@@ -45,6 +45,30 @@ define chroot_sftp::create_user($username = $name) {
 
   if $pub_ssh_key {
     validate_string($pub_ssh_key_type)
+
+    file { "${chroot_sftp::params::chroot_basedir}/${username}/.ssh": 
+      ensure  => directory,
+      owner   => 'root',
+      group   => 'root',
+      mode    => 0700,
+      seltype => $selinux_enforced ? {
+        'true'  => 'user_home_t',
+        default => undef
+      },
+      require => File["${chroot_sftp::params::chroot_basedir}/${username}"]
+    }
+
+    file { "${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys": 
+      ensure  => file,
+      owner   => 'root',
+      group   => 'root',
+      mode    => 0600,
+      seltype => $selinux_enforced ? {
+        'true'  => 'ssh_home_t',
+        default => undef
+      },
+      require => File["${chroot_sftp::params::chroot_basedir}/${username}/.ssh"]
+    }
 
     ssh_authorized_key { "${username}-pub":
       ensure  => present,

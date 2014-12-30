@@ -53,6 +53,50 @@ describe 'chroot_sftp::create_user' do
   context "with pub key" do
     let(:username) { "user_ssh" } # hiera fixture
 
+    context "with selinux enforced" do
+      let(:facts) { {:selinux_enforced => 'true'} }
+      
+      it { should contain_file("/sftp/#{username}/.ssh").with({
+        'ensure'  => 'directory',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => 'user_home_t',
+        'mode'    => '0700'
+        }).that_requires("File[/sftp/#{username}]")
+      }
+
+      it { should contain_file("/sftp/#{username}/.ssh/authorized_keys").with({
+        'ensure'  => 'file',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => 'ssh_home_t',
+        'mode'    => '0600'
+        }).that_requires("File[/sftp/#{username}/.ssh]")
+      }
+    end
+
+    context "with selinux disabled" do
+      let(:facts) { {:selinux_enforced => 'false'} }
+
+      it { should contain_file("/sftp/#{username}/.ssh").with({
+        'ensure'  => 'directory',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => nil,
+        'mode'    => '0700'
+        }).that_requires("File[/sftp/#{username}]")
+      }
+
+      it { should contain_file("/sftp/#{username}/.ssh/authorized_keys").with({
+        'ensure'  => 'file',
+        'owner'   => 'root',
+        'group'   => 'root',
+        'seltype' => nil,
+        'mode'    => '0600'
+        }).that_requires("File[/sftp/#{username}/.ssh]")
+      }
+    end
+
     it { should contain_user(username).with({
         'home'     => "/sftp/#{username}",
         'ensure'   => 'present',
