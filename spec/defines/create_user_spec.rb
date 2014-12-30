@@ -58,8 +58,8 @@ describe 'chroot_sftp::create_user' do
       
       it { should contain_file("/sftp/#{username}/.ssh").with({
         'ensure'  => 'directory',
-        'owner'   => 'root',
-        'group'   => 'root',
+        'owner'   => username,
+        'group'   => 'sftpusers',
         'seltype' => 'user_home_t',
         'mode'    => '0700'
         }).that_requires("File[/sftp/#{username}]")
@@ -67,8 +67,8 @@ describe 'chroot_sftp::create_user' do
 
       it { should contain_file("/sftp/#{username}/.ssh/authorized_keys").with({
         'ensure'  => 'file',
-        'owner'   => 'root',
-        'group'   => 'root',
+        'owner'   => username,
+        'group'   => 'sftpusers',
         'seltype' => 'ssh_home_t',
         'mode'    => '0600'
         }).that_requires("File[/sftp/#{username}/.ssh]")
@@ -80,8 +80,8 @@ describe 'chroot_sftp::create_user' do
 
       it { should contain_file("/sftp/#{username}/.ssh").with({
         'ensure'  => 'directory',
-        'owner'   => 'root',
-        'group'   => 'root',
+        'owner'   => username,
+        'group'   => 'sftpusers',
         'seltype' => nil,
         'mode'    => '0700'
         }).that_requires("File[/sftp/#{username}]")
@@ -89,8 +89,8 @@ describe 'chroot_sftp::create_user' do
 
       it { should contain_file("/sftp/#{username}/.ssh/authorized_keys").with({
         'ensure'  => 'file',
-        'owner'   => 'root',
-        'group'   => 'root',
+        'owner'   => username,
+        'group'   => 'sftpusers',
         'seltype' => nil,
         'mode'    => '0600'
         }).that_requires("File[/sftp/#{username}/.ssh]")

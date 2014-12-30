@@ -48,8 +48,8 @@ define chroot_sftp::create_user($username = $name) {
 
     file { "${chroot_sftp::params::chroot_basedir}/${username}/.ssh": 
       ensure  => directory,
-      owner   => 'root',
-      group   => 'root',
+      owner   => $username,
+      group   => $chroot_sftp::params::group_name,
       mode    => 0700,
       seltype => $selinux_enforced ? {
         'true'  => 'user_home_t',
@@ -60,8 +60,8 @@ define chroot_sftp::create_user($username = $name) {
 
     file { "${chroot_sftp::params::chroot_basedir}/${username}/.ssh/authorized_keys": 
       ensure  => file,
-      owner   => 'root',
-      group   => 'root',
+      owner   => $username,
+      group   => $chroot_sftp::params::group_name,
       mode    => 0600,
       seltype => $selinux_enforced ? {
         'true'  => 'ssh_home_t',
